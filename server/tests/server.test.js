@@ -4,6 +4,7 @@ const {ObjectID} = require('mongodb');
 
 const {app} = require('./../server');
 const {Todo} = require('./../models/todo');
+const {User} = require('./../models/user');
 const {todos, populateTodos, users, populateUsers} = require('./seed/seed');
 
 beforeEach(populateUsers);
@@ -91,7 +92,7 @@ describe('GET /todos/:id', () => {
 });
 
 describe('DELETE /todos/:id', () => {
-    it('Shoul remove a todo', (done) => {
+    it('Shoul remove a todo.', (done) => {
         let hexId = todos[1]._id.toHexString();
 
         request(app)
@@ -112,7 +113,7 @@ describe('DELETE /todos/:id', () => {
             });
     });
 
-    it('Should return 404 if todo no found', (done) => {
+    it('Should return 404 if todo no found.', (done) => {
         const hexId = new ObjectID().toHexString();
 
         request(app)
@@ -121,7 +122,7 @@ describe('DELETE /todos/:id', () => {
             .end(done);
     });
 
-    it('Should return 404 if objet id is invalid', (done) => {
+    it('Should return 404 if objet id is invalid.', (done) => {
         request(app)
             .delete(`/todos/123abc`)
             .expect(404)
@@ -130,7 +131,7 @@ describe('DELETE /todos/:id', () => {
 });
 
 describe('PATCH /todos/:id', () =>{
-    it('Should update the todo', (done) => {
+    it('Should update the todo.', (done) => {
         let text = 'New text todo text PATCH.';
         let hexId = todos[0]._id.toHexString();
 
@@ -149,7 +150,7 @@ describe('PATCH /todos/:id', () =>{
             .end(done);
     });
 
-    it('Should clear completedAt when todo is not completed', (done) => {
+    it('Should clear completedAt when todo is not completed.', (done) => {
         let text = 'New text todo text PATCH!!';
         let hexId = todos[1]._id.toHexString();
 
@@ -170,7 +171,7 @@ describe('PATCH /todos/:id', () =>{
 });
 
 describe('GET /users/me', () => {
-    it('should return user if authenticated', (done) => {
+    it('should return user if authenticated.', (done) => {
         request(app)
             .get('/users/me')
             .set('x-auth', users[0].tokens[0].token)
@@ -182,7 +183,63 @@ describe('GET /users/me', () => {
         .end(done);
     });
 
-/*     it('Should return 401 if not authentificated', (done) => {
+    it('Should return 401 if not authentificated.', (done) => {
+    request(app)
+        .get('/users/me')
+        .expect(401)
+        .expect((res) => {
+        expect(res.body).toEqual({});
+        })
+        .end(done);
+    });
+});
 
-    }); */
+describe('POST /users', () => {
+    it('Should create a user', (done) => {
+        var email = 'example@example.com';
+        var password = '123mnb!';
+
+        request(app)
+        .post('/users')
+        .send({email, password})
+        .expect(200)
+        .expect((res) => {
+            expect(res.headers['x-auth']).toExist();
+            expect(res.body._id).toExist();
+            expect(res.body.email).toBe(email);
+        })
+        .end((err) => {
+            if (err) {
+                return done(err);
+            }
+    
+            User.findOne({email}).then((user) => {
+                expect(user).toExist();
+                expect(user.password).toNotBe(password);
+                done();
+            });
+        });
+    });
+
+    it('Should return validation errors if request invalid.', (done) => {
+        request(app)
+        .post('/users')
+        .send({
+            email: 'and',
+            password: '123'
+        })
+        .expect(400)
+        .end(done);
+    });
+
+    it('Should not create user if email in use.', (done) => {
+        request(app)
+            .post('/users')
+            .send({
+            email: users[0].email,
+            password: 'Password123!'
+        })
+        .expect(400)
+        .end(done);
+    });
 });
