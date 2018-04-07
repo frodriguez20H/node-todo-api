@@ -166,11 +166,23 @@ describe('PATCH /todos/:id', () =>{
                 expect(res.body.todo.completedAt).toNotExist();
             })
             .end(done);
+    });
+});
 
-        // grab id of second todo item
-        // update text, set completed to false
-        // 200
-        // texte is changed, completed false, completedAt is null .toNotExist
+describe('GET /users/me', () => {
+    it('should return user if authenticated', (done) => {
+        request(app)
+            .get('/users/me')
+            .set('x-auth', users[0].tokens[0].token)
+            .expect(200)
+            .expect((res) => {
+                expect(res.body._id).toBe(users[0]._id.toHexString());
+                expect(res.body.email).toBe(users[0].email);
+        })
+        .end(done);
+    });
 
-    })
-})
+/*     it('Should return 401 if not authentificated', (done) => {
+
+    }); */
+});
