@@ -21,13 +21,13 @@
     "jsonwebtoken": "^8.4.0",
     "lodash": "^4.17.11",
     "mongodb": "^2.2.36",
-    "mongoose": "^4.13.17",
+    "mongoose": "^4.13.18",
     "validator": "^9.4.1"
   },
   "devDependencies": {
     "expect": "^22.4.3",
     "mocha": "^5.2.0",
     "nodemon": "^1.18.9",
-    "supertest": "^3.3.0"
+    "supertest": "^3.4.2"
   }
 }
